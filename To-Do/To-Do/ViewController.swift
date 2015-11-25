@@ -10,7 +10,7 @@ import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    var listsData:[String]!
+    let defaults = NSUserDefaults.standardUserDefaults()
     
     // Outlets.
     @IBOutlet weak var listsOutlet: UITableView!
@@ -18,7 +18,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        listsData = []
+        defaults.setObject([String](), forKey: "listData")
+        
+//        let gesture: UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "longPressed")
+//        gesture.minimumPressDuration = 1.0
+//        self.listsOutlet.addGestureRecognizer(gesture)
+        
         listsOutlet.delegate = self
         listsOutlet.dataSource = self
         // Do any additional setup after loading the view, typically from a nib.
@@ -32,7 +37,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // Button action.
     @IBAction func addButton(sender: AnyObject) {
         //add your data into tables array from textField
+        var listsData = defaults.arrayForKey("listData") as! [String]
         listsData.append(textFieldOutlet.text!)
+        defaults.setObject(listsData, forKey: "listData")
         
         dispatch_async(dispatch_get_main_queue(), { () -> Void in
             //reload your tableView
@@ -49,6 +56,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let listsData = defaults.arrayForKey("listData") as! [String]
         return listsData.count
     }
     
@@ -57,19 +65,26 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             let cell = listsOutlet.dequeueReusableCellWithIdentifier("TextCell", forIndexPath: indexPath)
             
             let row = indexPath.row
+            let listsData = defaults.arrayForKey("listData") as! [String]
             cell.textLabel?.text = listsData[row]
-        
+            
             return cell
         }
         return UITableViewCell()
     }
-    
-    
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        
-        let row = indexPath.row
-        print(listsData[row])
-    }
+//    
+//    func longPressed(longPress: UIGestureRecognizer) {
+//        let state = longPress.state
+//        let location = longPress.locationInView(self.listsOutlet)
+//		let indexPath = listsOutlet.indexPathForRowAtPoint(location)
+//        
+//        if state == UIGestureRecognizerState.Ended {
+//        	var listsData = defaults.arrayForKey("listData") as! [String]
+//            listsData.removeAtIndex(indexPath!.row)
+//            print("Ended")
+//        }else if state == UIGestureRecognizerState.Began {
+//            print("Began")
+//        }
+//    }
 }
 
